@@ -24,7 +24,7 @@ impl<'a> Iterator for NodeIterator<'a> {
     type Item = PathBuf;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if !self.node_path_yielded {
+        if self.node.is_element && !self.node_path_yielded {
             self.node_path_yielded = true;
             return Some(self.node.path.clone());
         }

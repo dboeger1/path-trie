@@ -13,12 +13,18 @@ use std::path::{
 pub(crate) struct Node {
     pub(crate) path: PathBuf,
     pub(crate) children: Vec<Node>,
+    pub(crate) is_element: bool,
 }
 
 impl Node {
     pub(crate) fn insert(&mut self, path: &Path) -> Result<(), String> {
         // Is path already in?
         if path == self.path {
+            if !self.is_element {
+                self.is_element = true;
+                return Ok(());
+            }
+
             return Err(format!(
                 "path \"{}\" already in trie",
                 path.to_string_lossy(),
@@ -74,6 +80,7 @@ impl Node {
                 self.children.push(Node {
                     path: path.to_path_buf(),
                     children: vec![problem_child],
+                    is_element: true,
                 });
 
                 return Ok(());
@@ -89,9 +96,11 @@ impl Node {
                             .unwrap()
                             .to_path_buf(),
                         children: Vec::new(),
+                        is_element: true,
                     },
                     problem_child,
                 ],
+                is_element: true,
             });
 
             return Ok(());
@@ -102,6 +111,7 @@ impl Node {
         self.children.push(Node {
             path: path.to_path_buf(),
             children: Vec::new(),
+            is_element: true,
         });
 
         Ok(())

@@ -15,18 +15,33 @@ pub struct PathTrie {
 impl PathTrie {
     pub fn new() -> Self {
         Self {
-            root_nodes: vec![Node {
-                path: PathBuf::from("/"),
-                children: Vec::new(),
-            }],
+            root_nodes: Vec::new(),
         }
     }
 
     pub fn insert(&mut self, path: &Path) -> Result<(), String> {
         for root_node in self.root_nodes.iter_mut() {
-            root_node.insert(path)?;
+            if root_node.insert(path).is_ok() {
+                return Ok(());
+            }
         }
-        Ok(())
+
+        match path.ancestors().last() {
+            None => return Err("cannot insert empty path".to_string()),
+            Some(root) => {
+                let mut root_node = Node {
+                    path: PathBuf::from(root),
+                    children: Vec::new(),
+                    is_element: false,
+                };
+
+                root_node.insert(path).unwrap();
+
+                self.root_nodes.push(root_node);
+
+                Ok(())
+            },
+        }
     }
 
     pub fn iter(&self) -> PathTrieIterator {
