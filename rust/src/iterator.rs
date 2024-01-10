@@ -42,10 +42,13 @@ impl<'a> Iterator for PathTrieIterator<'a> {
             if self.node_iterator.is_none() {
                 self.node_iterator = Some(root_node.iter());
             }
-            let node_iterator = self.node_iterator.as_mut().unwrap();
 
+            let node_iterator = self.node_iterator.as_mut().unwrap();
             match node_iterator.next() {
-                None => self.root_node = self.root_node_iterator.next(),
+                None => {
+                    self.root_node = self.root_node_iterator.next();
+                    self.node_iterator = None;
+                },
                 Some(path) => return Some(path),
             }
         }

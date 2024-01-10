@@ -61,3 +61,24 @@ fn test_positive_insert_root_parent() -> Result<(), String> {
 
     Ok(())
 }
+
+#[test]
+fn test_positive_insert_roots_2() -> Result<(), String> {
+    let paths = (
+        PathBuf::from("/"),
+        PathBuf::from("relative"),
+        PathBuf::from("."),
+        PathBuf::from(".."),
+    );
+
+    let mut trie = PathTrie::new();
+    trie.insert(&paths.0)?;
+    trie.insert(&paths.1)?;
+    trie.insert(&paths.2)?;
+    trie.insert(&paths.3)?;
+
+    let elements: Vec<PathBuf> = trie.iter().collect();
+    assert_eq!(vec![paths.0, paths.1, paths.2, paths.3], elements);
+
+    Ok(())
+}

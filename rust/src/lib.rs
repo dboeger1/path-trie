@@ -19,6 +19,8 @@ impl PathTrie {
         }
     }
 
+    // pub fn contains(&self, path: &Path) -> bool {}
+
     pub fn insert(&mut self, path: &Path) -> Result<(), String> {
         for root_node in self.root_nodes.iter_mut() {
             if root_node.insert(path).is_ok() {
@@ -26,7 +28,11 @@ impl PathTrie {
             }
         }
 
-        match path.ancestors().last() {
+        match path
+            .ancestors()
+            // necessary because last() yields "" as root for relative paths
+            .filter(|ancestor| !ancestor.as_os_str().is_empty())
+            .last() {
             None => return Err("cannot insert empty path".to_string()),
             Some(root) => {
                 let mut root_node = Node {
@@ -34,7 +40,6 @@ impl PathTrie {
                     children: Vec::new(),
                     is_element: false,
                 };
-
                 root_node.insert(path).unwrap();
 
                 self.root_nodes.push(root_node);
@@ -43,6 +48,8 @@ impl PathTrie {
             },
         }
     }
+
+    // pub fn remove(&self, path: &Path) -> Result<(), String> {}
 
     pub fn iter(&self) -> PathTrieIterator {
         PathTrieIterator::new(self)
