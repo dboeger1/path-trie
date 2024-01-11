@@ -64,8 +64,8 @@ fn test_positive_insert_root_relative() -> Result<(), String> {
 }
 
 #[test]
-fn test_positive_insert_roots_2() -> Result<(), String> {
-    let paths = vec![
+fn test_positive_insert_roots() -> Result<(), String> {
+    let roots = vec![
         PathBuf::from("/"),
         PathBuf::from("."),
         PathBuf::from(".."),
@@ -73,101 +73,20 @@ fn test_positive_insert_roots_2() -> Result<(), String> {
         PathBuf::from("relative2"),
     ];
 
-    for permutation in Itertools::permutations(paths.iter(), 2) {
-        let mut trie = PathTrie::new();
-        trie.insert(permutation[0])?;
-        trie.insert(permutation[1])?;
+    for root_count in 2..=5 {
+        for permutation in Itertools::permutations(roots.iter(), root_count) {
+            let mut trie = PathTrie::new();
+            for root_index in 0..=(root_count - 1) {
+                trie.insert(permutation[root_index])?;
+            }
 
-        let permutation: Vec<PathBuf> = permutation
-            .into_iter()
-            .cloned()
-            .collect();
-        let elements: Vec<PathBuf> = trie.iter().collect();
-        assert_eq!(permutation, elements);
-    }
-
-    Ok(())
-}
-
-#[test]
-fn test_positive_insert_roots_3() -> Result<(), String> {
-    let paths = vec![
-        PathBuf::from("/"),
-        PathBuf::from("."),
-        PathBuf::from(".."),
-        PathBuf::from("relative1"),
-        PathBuf::from("relative2"),
-    ];
-
-    for permutation in Itertools::permutations(paths.iter(), 3) {
-        let mut trie = PathTrie::new();
-        trie.insert(permutation[0])?;
-        trie.insert(permutation[1])?;
-        trie.insert(permutation[2])?;
-
-        let permutation: Vec<PathBuf> = permutation
-            .into_iter()
-            .cloned()
-            .collect();
-        let elements: Vec<PathBuf> = trie.iter().collect();
-        assert_eq!(permutation, elements);
-    }
-
-    Ok(())
-}
-
-#[test]
-fn test_positive_insert_roots_4() -> Result<(), String> {
-    let paths = vec![
-        PathBuf::from("/"),
-        PathBuf::from("."),
-        PathBuf::from(".."),
-        PathBuf::from("relative1"),
-        PathBuf::from("relative2"),
-    ];
-
-    for permutation in Itertools::permutations(paths.iter(), 4) {
-        let mut trie = PathTrie::new();
-        trie.insert(permutation[0])?;
-        trie.insert(permutation[1])?;
-        trie.insert(permutation[2])?;
-        trie.insert(permutation[3])?;
-
-        let permutation: Vec<PathBuf> = permutation
-            .into_iter()
-            .cloned()
-            .collect();
-        let elements: Vec<PathBuf> = trie.iter().collect();
-        assert_eq!(permutation, elements);
-    }
-
-    Ok(())
-}
-
-#[test]
-fn test_positive_insert_roots_5() -> Result<(), String> {
-    let paths = vec![
-        PathBuf::from("/"),
-        PathBuf::from("."),
-        PathBuf::from(".."),
-        PathBuf::from("relative1"),
-        PathBuf::from("relative2"),
-    ];
-
-    for permutation in Itertools::permutations(paths.iter(), 5) {
-        let mut trie = PathTrie::new();
-        trie.insert(permutation[0])?;
-        trie.insert(permutation[1])?;
-        trie.insert(permutation[2])?;
-        trie.insert(permutation[3])?;
-        trie.insert(permutation[4])?;
-
-        let permutation: Vec<PathBuf> = permutation
-            .into_iter()
-            .cloned()
-            .collect();
-        let elements: Vec<PathBuf> = trie.iter().collect();
-        assert_eq!(permutation, elements);
+            let permutation: Vec<PathBuf> = permutation
+                .into_iter()
+                .cloned()
+                .collect();
+            let elements: Vec<PathBuf> = trie.iter().collect();
+            assert_eq!(permutation, elements);
+        }
     }
 
     Ok(())
@@ -175,292 +94,88 @@ fn test_positive_insert_roots_5() -> Result<(), String> {
 
 #[test]
 fn test_positive_insert_root_children() -> Result<(), String> {
-    let paths = (
+    let roots = vec![
         PathBuf::from("/"),
-        PathBuf::from("/child1"),
-        PathBuf::from("/child1/child2"),
-        PathBuf::from("/child1/child2/child3"),
-        PathBuf::from("/child1/child4"),
-        PathBuf::from("/child1/child4/child5"),
-    );
-
-    let mut trie = PathTrie::new();
-
-    trie.insert(&paths.2)?;
-    let expected = vec![
-        paths.2.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.0)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.4)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.5)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.3)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.1)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.1.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    Ok(())
-}
-
-#[test]
-fn test_positive_insert_here_children() -> Result<(), String> {
-    let paths = (
         PathBuf::from("."),
-        PathBuf::from("./child1"),
-        PathBuf::from("./child1/child2"),
-        PathBuf::from("./child1/child2/child3"),
-        PathBuf::from("./child1/child4"),
-        PathBuf::from("./child1/child4/child5"),
-    );
-
-    let mut trie = PathTrie::new();
-
-    trie.insert(&paths.2)?;
-    let expected = vec![
-        paths.2.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.0)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.4)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.5)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.3)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.1)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.1.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    Ok(())
-}
-
-#[test]
-fn test_positive_insert_parent_children() -> Result<(), String> {
-    let paths = (
         PathBuf::from(".."),
-        PathBuf::from("../child1"),
-        PathBuf::from("../child1/child2"),
-        PathBuf::from("../child1/child2/child3"),
-        PathBuf::from("../child1/child4"),
-        PathBuf::from("../child1/child4/child5"),
-    );
-
-    let mut trie = PathTrie::new();
-
-    trie.insert(&paths.2)?;
-    let expected = vec![
-        paths.2.clone(),
+        PathBuf::from("relative"),
     ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
 
-    trie.insert(&paths.0)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
+    for root in roots {
+        let paths = vec![
+            root.clone(),
+            root.join("child1"),
+            root.join("child1/child2"),
+            root.join("child1/child2/child3"),
+            root.join("child1/child4"),
+            root.join("child1/child4/child5"),
+        ];
 
-    trie.insert(&paths.4)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
+        let mut trie = PathTrie::new();
 
-    trie.insert(&paths.5)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
+        trie.insert(&paths[2])?;
+        let expected = vec![
+            paths[2].clone(),
+        ];
+        let elements: Vec<PathBuf> = trie.iter().collect();
+        assert_eq!(expected, elements);
 
-    trie.insert(&paths.3)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
+        trie.insert(&paths[0])?;
+        let expected = vec![
+            paths[0].clone(),
+            paths[2].clone(),
+        ];
+        let elements: Vec<PathBuf> = trie.iter().collect();
+        assert_eq!(expected, elements);
 
-    trie.insert(&paths.1)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.1.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
+        trie.insert(&paths[4])?;
+        let expected = vec![
+            paths[0].clone(),
+            paths[2].clone(),
+            paths[4].clone(),
+        ];
+        let elements: Vec<PathBuf> = trie.iter().collect();
+        assert_eq!(expected, elements);
+
+        trie.insert(&paths[5])?;
+        let expected = vec![
+            paths[0].clone(),
+            paths[2].clone(),
+            paths[4].clone(),
+            paths[5].clone(),
+        ];
+        let elements: Vec<PathBuf> = trie.iter().collect();
+        assert_eq!(expected, elements);
+
+        trie.insert(&paths[3])?;
+        let expected = vec![
+            paths[0].clone(),
+            paths[2].clone(),
+            paths[3].clone(),
+            paths[4].clone(),
+            paths[5].clone(),
+        ];
+        let elements: Vec<PathBuf> = trie.iter().collect();
+        assert_eq!(expected, elements);
+
+        trie.insert(&paths[1])?;
+        let expected = vec![
+            paths[0].clone(),
+            paths[1].clone(),
+            paths[2].clone(),
+            paths[3].clone(),
+            paths[4].clone(),
+            paths[5].clone(),
+        ];
+        let elements: Vec<PathBuf> = trie.iter().collect();
+        assert_eq!(expected, elements);
+    }
 
     Ok(())
 }
 
 #[test]
-fn test_positive_insert_relative_children() -> Result<(), String> {
-    let paths = (
-        PathBuf::from("relative"),
-        PathBuf::from("relative/child1"),
-        PathBuf::from("relative/child1/child2"),
-        PathBuf::from("relative/child1/child2/child3"),
-        PathBuf::from("relative/child1/child4"),
-        PathBuf::from("relative/child1/child4/child5"),
-    );
-
+fn test_negative_insert_empty() {
     let mut trie = PathTrie::new();
-
-    trie.insert(&paths.2)?;
-    let expected = vec![
-        paths.2.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.0)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.4)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.5)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.3)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    trie.insert(&paths.1)?;
-    let expected = vec![
-        paths.0.clone(),
-        paths.1.clone(),
-        paths.2.clone(),
-        paths.3.clone(),
-        paths.4.clone(),
-        paths.5.clone(),
-    ];
-    let actual: Vec<PathBuf> = trie.iter().collect();
-    assert_eq!(expected, actual);
-
-    Ok(())
+    assert!(trie.insert(&PathBuf::from("")).is_err());
 }

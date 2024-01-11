@@ -1,28 +1,18 @@
 use crate::{
-    node::{
-        iterator::NodeIterator,
-        Node,
-    },
+    node::iterator::NodeIterator,
     PathTrie,
 };
-use std::{
-    path::PathBuf,
-    slice::Iter,
-};
+use std::path::PathBuf;
 
 
 pub struct PathTrieIterator<'a> {
-    root_node_iterator: Iter<'a, Node>,
-    root_node: Option<&'a Node>,
-    node_iterator: Option<NodeIterator<'a>>,
+    root_node_iterator: NodeIterator<'a>,
 }
 
 impl<'a> PathTrieIterator<'a> {
     pub(crate) fn new(path_trie: &'a PathTrie) -> Self {
         Self {
-            root_node_iterator: path_trie.root_nodes.iter(),
-            root_node: None,
-            node_iterator: None,
+            root_node_iterator: path_trie.root_node.iter(),
         }
     }
 }
@@ -31,28 +21,6 @@ impl<'a> Iterator for PathTrieIterator<'a> {
     type Item = PathBuf;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.root_node.is_none() {
-            self.root_node = self.root_node_iterator.next();
-            if self.root_node.is_none() {
-                return None;
-            }
-        }
-
-        while let Some(root_node) = self.root_node {
-            if self.node_iterator.is_none() {
-                self.node_iterator = Some(root_node.iter());
-            }
-
-            let node_iterator = self.node_iterator.as_mut().unwrap();
-            match node_iterator.next() {
-                None => {
-                    self.root_node = self.root_node_iterator.next();
-                    self.node_iterator = None;
-                },
-                Some(path) => return Some(path),
-            }
-        }
-
-        None
+        self.root_node_iterator.next()
     }
 }

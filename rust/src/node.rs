@@ -17,7 +17,7 @@ pub(crate) struct Node {
 
 impl Node {
     pub(crate) fn insert(&mut self, path: &Path) -> Result<(), String> {
-        // Is path already in?
+        // Does path match current node?
         if path == self.path {
             if !self.is_element {
                 self.is_element = true;
@@ -30,7 +30,7 @@ impl Node {
             ));
         }
 
-        // Does path even belong?
+        // Does path belong within this subtree?
         let path = match path.strip_prefix(&self.path) {
             // If so, strip for daddy.
             Ok(stripped_path) => stripped_path,
@@ -44,7 +44,7 @@ impl Node {
         // Iterate through children.
         let mut problem_child = None;
         for (index, child) in self.children.iter_mut().enumerate() {
-            // Does path belong under child?
+            // Does path belong within child's subtree?
             if path.starts_with(&child.path) {
                 return child.insert(path);
             }
@@ -82,7 +82,7 @@ impl Node {
                 .unwrap()
                 .to_path_buf();
 
-            // Handle the case where path is itself a prefix of child.
+            // Handle the case where path is itself a prefix of problem child.
             if common_prefix == path {
                 self.children.push(Node {
                     path: path.to_path_buf(),
@@ -93,7 +93,7 @@ impl Node {
                 return Ok(());
             }
 
-            // Create a new prefix node containing path and child.
+            // Create a new prefix node containing path and problem child.
             self.children.push(Node {
                 path: common_prefix.to_path_buf(),
                 children: vec![

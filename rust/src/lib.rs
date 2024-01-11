@@ -9,42 +9,31 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct PathTrie {
-    root_nodes: Vec<Node>,
+    // The following root node is not a filesystem root, but an empty path which
+    // serves as a common ancestor for all path nodes, which may include
+    // multiple filesystem root nodes, relative paths, etc. This was done to
+    // maximize reuse of the Node logic, without having to handle special edge
+    // cases here in PathTrie.
+    root_node: Node,
 }
 
 impl PathTrie {
     pub fn new() -> Self {
         Self {
-            root_nodes: Vec::new(),
+            root_node: Node {
+                path: PathBuf::from(""),
+                children: Vec::new(),
+                is_element: false,
+            },
         }
     }
 
     pub fn insert(&mut self, path: &Path) -> Result<(), String> {
-        for root_node in self.root_nodes.iter_mut() {
-            if root_node.insert(path).is_ok() {
-                return Ok(());
-            }
+        if path.as_os_str().is_empty() {
+            return Err("cannot insert empty path".to_string());
         }
 
-        match path
-            .ancestors()
-            // necessary because last() yields "" as root for relative paths
-            .filter(|ancestor| !ancestor.as_os_str().is_empty())
-            .last() {
-            None => return Err("cannot insert empty path".to_string()),
-            Some(root) => {
-                let mut root_node = Node {
-                    path: PathBuf::from(root),
-                    children: Vec::new(),
-                    is_element: false,
-                };
-                root_node.insert(path).unwrap();
-
-                self.root_nodes.push(root_node);
-
-                Ok(())
-            },
-        }
+        self.root_node.insert(path)
     }
 
     pub fn iter(&self) -> PathTrieIterator {
