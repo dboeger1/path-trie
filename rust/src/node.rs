@@ -1,7 +1,6 @@
 pub(crate) mod iterator;
 
 
-use ancestry::Ancestry;
 use iterator::NodeIterator;
 use std::path::{
     Path,
@@ -44,22 +43,30 @@ impl Node {
 
         // Iterate through children.
         let mut problem_child = None;
-        for (index, child) in self.children.iter_mut().enumerate()  {
+        for (index, child) in self.children.iter_mut().enumerate() {
             // Does path belong under child?
             if path.starts_with(&child.path) {
                 return child.insert(path);
             }
 
             // This is where it gets tricky. If path and child share a common
-            // prefix, at the very least, we know the problem child doesn't
-            // belong under its current parent.
+            // prefix, at the very least, we know the problem child needs a new
+            // parent.
             //
             // The borrow checker doesn't make it very natural to perform
             // complex modifications on collections while iterating through
             // them, so mark it for after the loop.
-            if let Some(common_prefix) =
-                child.path.closest_common_ancestor(path) {
-                problem_child = Some((index, common_prefix.to_path_buf()));
+            if let Some(closest_common_ancestor) = child
+                .path
+                .ancestors()
+                .find(|ancestor|
+                    !ancestor.as_os_str().is_empty() &&
+                    path.starts_with(ancestor)
+                ) {
+                problem_child = Some((
+                    index,
+                    closest_common_ancestor.to_path_buf(),
+                ));
                 break;
             }
         }
@@ -90,6 +97,7 @@ impl Node {
             self.children.push(Node {
                 path: common_prefix.to_path_buf(),
                 children: vec![
+                    problem_child,
                     Node {
                         path: path
                             .strip_prefix(common_prefix)
@@ -98,9 +106,8 @@ impl Node {
                         children: Vec::new(),
                         is_element: true,
                     },
-                    problem_child,
                 ],
-                is_element: true,
+                is_element: false,
             });
 
             return Ok(());

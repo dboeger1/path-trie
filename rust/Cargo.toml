@@ -8,5 +8,5 @@ edition = "2021"
 [lib]
 name = "path_trie"
 
-[dependencies]
-ancestry-rs = { git = "https://github.com/dboeger1/ancestry.git" }
+[dev-dependencies]
+itertools = "0.12.0"

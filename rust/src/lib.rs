@@ -19,8 +19,6 @@ impl PathTrie {
         }
     }
 
-    // pub fn contains(&self, path: &Path) -> bool {}
-
     pub fn insert(&mut self, path: &Path) -> Result<(), String> {
         for root_node in self.root_nodes.iter_mut() {
             if root_node.insert(path).is_ok() {
@@ -48,8 +46,6 @@ impl PathTrie {
             },
         }
     }
-
-    // pub fn remove(&self, path: &Path) -> Result<(), String> {}
 
     pub fn iter(&self) -> PathTrieIterator {
         PathTrieIterator::new(self)

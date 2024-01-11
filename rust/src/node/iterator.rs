@@ -47,7 +47,6 @@ impl<'a> Iterator for NodeIterator<'a> {
                 .next() {
                 let mut path = self.node.path.clone();
                 path.push(next_item);
-                println!("yielding child next: \"{}\"", path.to_string_lossy());
                 return Some(path);
             }
 
