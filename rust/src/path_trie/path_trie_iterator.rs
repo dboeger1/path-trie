@@ -1,5 +1,5 @@
 use crate::{
-    node::iterator::NodeIterator,
+    node::node_iterator::NodeIterator,
     PathTrie,
 };
 use std::path::PathBuf;

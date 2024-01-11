@@ -1,7 +1,7 @@
-pub(crate) mod iterator;
+pub(crate) mod node_iterator;
 
 
-use iterator::NodeIterator;
+use node_iterator::NodeIterator;
 use std::path::{
     Path,
     PathBuf,
