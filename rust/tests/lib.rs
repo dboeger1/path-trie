@@ -179,3 +179,19 @@ fn test_negative_insert_empty() {
     let mut trie = PathTrie::new();
     assert!(trie.insert(&PathBuf::from("")).is_err());
 }
+
+#[test]
+fn test_negative_insert_duplicate() {
+    let paths = vec![
+        PathBuf::from("/a/b/c/d"),
+        PathBuf::from("./a/b/c/d"),
+        PathBuf::from("../a/b/c/d"),
+        PathBuf::from("a/b/c/d"),
+    ];
+
+    for path in paths {
+        let mut trie = PathTrie::new();
+        let _ = trie.insert(&path);
+        assert!(trie.insert(&path).is_err());
+    }
+}
